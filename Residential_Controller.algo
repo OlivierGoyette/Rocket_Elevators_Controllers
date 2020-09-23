@@ -1,0 +1,107 @@
+"Immeuble Residential doit contenir
+
+-Une colonne
+-Composé de deux ascenseur
+-Avec 10 étages
+
+Objet controlé
+
+-Colonne
+-Ascenseur
+-Bouton dappel (à lentré)
+-Porte
+-Bouton de demande détage (à lintérieur)
+
+Bouton appartient à la colonne
+La colonne controle les acenseurs
+"
+
+
+Door_Open = false
+Door_Close = true
+
+DEFINE Column USING id AND number_of_floor AND number_of_elevator AND status:
+    ID: 1,
+    Status: IDLE,
+    ElevatorList: SET to create_Elevator_List
+    number_of_floor: 10
+
+
+    SEQUENCE create_Elevator_List USING number_of_elevator
+        FOR EACH number_of_elevator
+            TEMPID = 1
+            ADD (INSTANTIATE Elevator WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
+            TEMPID = TEMPID + 1
+        ENDFOR
+    ENDSEQUENCE
+ENDDEFINE
+
+DEFINE Elevator USIN id AND currentFloor AND status
+    ID: id
+
+ENDDEFINE
+
+
+DEFINE initSystem USING number_of_floor AND number_of_elevator
+    'Creer ta colonne
+    SET column1 TO INSTANTIATE Column WITH 1 AND number_of_floor AND number_of_elevator AND ON
+    CALL column1.create_Elevator_List
+    'Colnne créé les acseneurs
+ENDDEFINE
+
+
+
+
+
+
+
+
+
+SEQUENCE Best_Elevator USING floor AND direction
+
+    FOR Each elevator IN column1.ElevatorList
+
+    if Elevator NEAREST floor AND direction
+        then move Elevator to floor selected
+
+    ENDFOR
+ENDSEQUENCE
+
+
+SEQUENCE Indicate_Floor
+
+    display wich floor you are now with Floor_Selection    
+
+ENDSEQUENCE
+
+
+
+SEQUENCE Button_Floor
+
+    if Button_Floor Pressed [1,2,3,4,5,6,7,8,9,10]
+        DETERMINE destination floor with Button_Floor selection
+        
+ENDSEQUENCE
+
+SEQUENCE Call_Button_Up
+
+    if Call_Button_Up pressed
+        then CALL Best_Elevator
+
+ENDSEQUENCE
+
+SEQUENCE Call_Button_Down
+
+    if Call_Button_Down pressed
+        then CALL Best_Elevator
+
+ENDSEQUENCE
+
+SEQUENCE Door_Open
+
+    when Best_Elevator at floor (selected)
+        then Door_Open = true Door_Close = false
+        Wait 10 seconde
+        then Door_Open = false Door_Close = true
+
+ENDSEQUENCE
