@@ -1,4 +1,69 @@
-Immeuble Corporate doit contenir
+"Immeuble Corporate doit contenir
 
 -66 étages dont 6 sous-sols
 -4 colonnes composé de chacune 3 ascenseurs 
+"
+
+DEFINE Battery USING id AND status AND number_of_colonnes AND number_of_floor AND number_of_basement
+     ID: id,
+    Status: ONLINE,
+    Colonnes_List: SET to create_Colonnes_List
+    number_of_floor: 60
+    number_of_basement: 6
+        SEQUENCE create_Colonnes_List USING number_of_colonnes
+            FOR EACH number_of_colonnes 
+                TEMPID = 1
+                ADD (INSTANTIATE Colonne1 WITH TEMPID AND 1 AND "IDLE") TO Colonnes_List
+                ADD (INSTANTIATE Colonne2 WITH TEMPID AND 2 AND "IDLE") TO Colonnes_List
+                ADD (INSTANTIATE Colonne3 WITH TEMPID AND 3 AND "IDLE") TO Colonnes_List
+                ADD (INSTANTIATE Colonne4 WITH TEMPID AND 4 AND "IDLE") TO Colonnes_List
+                TEMPID = TEMPID + 1
+            ENDFOR
+        ENDSEQUENCE
+ENDDEFINE
+
+DEFINE Colonnes_List USING id AND status AND number_of_floor AND number_of_basement AND number_of_elevator
+    ID: id
+    status: ONLINE
+    number_of_floor: 60
+    number_of_basement: 6
+    Elevator_List: SET to create_Elevator_List
+        SEQUENCE create_Elevator_List USING number_of_colonnes
+            FOR EACH number_of_colonnes
+                TEMPID = 1
+                ADD (INSTANTIATE Elevator1 WITH TEMPID AND 1 AND "IDLE") TO Elevator_List
+                ADD (INSTANTIATE Elevator2 WITH TEMPID AND 2 AND "IDLE") TO Elevator_List
+                ADD (INSTANTIATE Elevator3 WITH TEMPID AND 3 AND "IDLE") TO Elevator_List
+                TEMPID = TEMPID + 1
+            ENDFOR
+        ENDSEQUENCE
+ENDDEFINE
+
+DEFINE Elevator_List USING id AND status AND Elevator_List
+    Id: id
+    status: ONLINE
+    Elevator_Number: SET to create_Elevator_Number
+        SEQUENCE create_Elevator_Number USING Elevator_List
+            FOR EACH Elevator_List
+                ADD
+                ADD
+                ADD
+                ADD
+        ENDSEQUENCE
+ENDDEFINE  
+
+DEFINE Button_Floor USING id AND status AND direction AND number_of_floor
+    ID: id
+    Status: ONLINE
+    Directions: directions
+    number_of_floor: 10
+    direction: "UP" OR "DOWN"
+        SEQUENCE create_Button_Floor USING number_of_floor
+            FOR Each number_of_floor
+                ADD Button_Floor WITH "UP" AND number_of_floor TO create_Button_Floor
+                ADD Button_Floor WITH "DOWN" AND number_of_floor TO create_Button_Floor
+                REMOVE create_Button_Floor.direction10(UP) FROM create_Button_Floor
+                REMOVE create_Button_Floor.direction1(DOWN) FROM create_Button_Floor
+            ENDFOR
+        ENDSEQUENCE
+ENDDEFINE
