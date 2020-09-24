@@ -17,8 +17,17 @@ La colonne controle les acenseurs
 "
 
 
+
 Door_Open = false
 Door_Close = true
+
+DEFINE initSystem USING number_of_floor AND number_of_elevator
+    
+    SET column1 TO INSTANTIATE Column WITH 1 AND number_of_floor AND number_of_elevator AND ON
+    CALL column1.create_Elevator_List
+    
+ENDDEFINE
+
 
 DEFINE Column USING id AND number_of_floor AND number_of_elevator AND status:
     ID: 1,
@@ -30,70 +39,102 @@ DEFINE Column USING id AND number_of_floor AND number_of_elevator AND status:
     SEQUENCE create_Elevator_List USING number_of_elevator
         FOR EACH number_of_elevator
             TEMPID = 1
-            ADD (INSTANTIATE Elevator WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
+            ADD (INSTANTIATE Elevator_A WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
+            ADD (INSTANTIATE Elevator_B WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
             TEMPID = TEMPID + 1
         ENDFOR
     ENDSEQUENCE
 ENDDEFINE
 
+
 DEFINE Elevator USIN id AND currentFloor AND status
     ID: id
+    currentFloor: 
+    status: IDLE
 
+   SEQUENCE Best_Elevator USING currentFloor AND direction
+        FOR Each Elevator IN column1.ElevatorList
+            if Elevator NEAREST floor AND direction
+            then move Elevator to floor selected
+        ENDFOR
+    ENDSEQUENCE
 ENDDEFINE
 
 
-DEFINE initSystem USING number_of_floor AND number_of_elevator
-    'Creer ta colonne
-    SET column1 TO INSTANTIATE Column WITH 1 AND number_of_floor AND number_of_elevator AND ON
-    CALL column1.create_Elevator_List
-    'Colnne créé les acseneurs
+DEFINE Button_Floor USING id AND status AND directions AND number_of_floor
+
+    id: id
+    status: status
+    direction: direction
+
+    SEQUENCE create_Button_Floor USING number_of_floor
+        number_of_floor: 10
+        direction: "UP" OR "DOWN"
+        FOR Each number_of_floor
+            ADD Button_Floor WITH "UP" AND number_of_floor TO create_Button_Floor
+            ADD Button_Floor WITH "DOWN" AND number_of_floor TO create_Button_Floor
+            REMOVE create_Button_Floor.direction10(UP) FROM create_Button_Floor
+            REMOVE create_Button_Floor.direction1(DOWN) FROM create_Button_Floor
+        ENDFOR
+    ENDSEQUENCE
 ENDDEFINE
 
 
+DEFINE Floor_Request USING id AND Status AND Elevator AND number_of_floor
+
+    SEQUENCE createFloor_Request USING Elevator AND number_of_floor
+        FOR Each Elevator ADD createFloor_Request.list 
+        createFloor_Request.list = [1,2,3,4,5,6,7,8,9,10]
+        ENDFOR 
+    ENDSEQUENCE
+ENDDEFINE
 
 
+DEFINE Door_Close/Open USING id AND status AND Elevator AND number_of_floor
 
+SEQUENCE Door_Open
 
-
-
-
-SEQUENCE Best_Elevator USING floor AND direction
-
-    FOR Each elevator IN column1.ElevatorList
-
-    if Elevator NEAREST floor AND direction
-        then move Elevator to floor selected
-
+    FOR EACH number_of_floor
+        when Best_Elevator at number_of_floor (selected)
+        then Door_Open = true Door_Close = false
+        Wait 10 seconde
+        then Door_Open = false Door_Close = true
     ENDFOR
 ENDSEQUENCE
+ENDDEFINE
+
+
+
+
+
+
 
 
 SEQUENCE Indicate_Floor
 
-    display wich floor you are now with Floor_Selection    
+    display wich floor you are now with currentFloor    
 
 ENDSEQUENCE
 
 
 
-SEQUENCE Button_Floor
 
-    if Button_Floor Pressed [1,2,3,4,5,6,7,8,9,10]
-        DETERMINE destination floor with Button_Floor selection
-        
-ENDSEQUENCE
 
-SEQUENCE Call_Button_Up
 
-    if Call_Button_Up pressed
-        then CALL Best_Elevator
 
-ENDSEQUENCE
 
-SEQUENCE Call_Button_Down
 
-    if Call_Button_Down pressed
-        then CALL Best_Elevator
+
+
+
+
+
+
+
+
+
+
+
 
 ENDSEQUENCE
 
@@ -105,3 +146,6 @@ SEQUENCE Door_Open
         then Door_Open = false Door_Close = true
 
 ENDSEQUENCE
+
+
+
