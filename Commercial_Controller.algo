@@ -4,6 +4,10 @@
 -4 colonnes composé de chacune 3 ascenseurs 
 "
 
+Door_Open = false
+Door_Close = true
+
+
 DEFINE Battery USING id AND status AND number_of_colonnes AND number_of_floor AND number_of_basement
      ID: id,
     Status: ONLINE,
@@ -20,7 +24,7 @@ DEFINE Battery USING id AND status AND number_of_colonnes AND number_of_floor AN
                 TEMPID = TEMPID + 1
             ENDFOR
         ENDSEQUENCE
-ENDDEFINE
+
 
 DEFINE Colonnes_List USING id AND status AND number_of_floor AND number_of_basement AND number_of_elevator
     ID: id
@@ -28,8 +32,8 @@ DEFINE Colonnes_List USING id AND status AND number_of_floor AND number_of_basem
     number_of_floor: 60
     number_of_basement: 6
     Elevator_List: SET to create_Elevator_List
-        SEQUENCE create_Elevator_List USING number_of_colonnes
-            FOR EACH number_of_colonnes
+        SEQUENCE create_Elevator_List USING Colonnes_List
+            FOR EACH Colonnes_List
                 TEMPID = 1
                 ADD (INSTANTIATE Elevator1 WITH TEMPID AND 1 AND "IDLE") TO Elevator_List
                 ADD (INSTANTIATE Elevator2 WITH TEMPID AND 2 AND "IDLE") TO Elevator_List
@@ -38,25 +42,13 @@ DEFINE Colonnes_List USING id AND status AND number_of_floor AND number_of_basem
             ENDFOR
         ENDSEQUENCE
 ENDDEFINE
-
-DEFINE Elevator_List USING id AND status AND Elevator_List
-    Id: id
-    status: ONLINE
-    Elevator_Number: SET to create_Elevator_Number
-        SEQUENCE create_Elevator_Number USING Elevator_List
-            FOR EACH Elevator_List
-                ADD
-                ADD
-                ADD
-                ADD
-        ENDSEQUENCE
-ENDDEFINE  
+ 
 
 DEFINE Button_Floor USING id AND status AND direction AND number_of_floor
     ID: id
     Status: ONLINE
     Directions: directions
-    number_of_floor: 10
+    number_of_floor: 60
     direction: "UP" OR "DOWN"
         SEQUENCE create_Button_Floor USING number_of_floor
             FOR Each number_of_floor
@@ -67,3 +59,112 @@ DEFINE Button_Floor USING id AND status AND direction AND number_of_floor
             ENDFOR
         ENDSEQUENCE
 ENDDEFINE
+
+
+DEFINE Btn_Ask_Floor USING direction AND number_of_floor
+    Direction:
+    number_of_floor
+        SEQUENCE Btn_Using_Floor
+            IF Btn_Using_Floor PRESSED number_of_floor
+                Then READ Btn_Using_Floor AND move to direction
+        ENDSEQUENCE
+ENDDEFINE
+
+
+DEFINE Door_CloseAndOpen USING id AND status AND Elevator_List AND number_of_floor
+    ID: id
+    Status: status
+    SEQUENCE Door_Open
+        FOR EACH number_of_floor
+            when Elevator_List at number_of_floor (selected)
+            then Door_Open = true Door_Close = false
+            Wait 10 seconde
+            then Door_Open = false Door_Close = true
+        ENDFOR
+    ENDSEQUENCE
+ENDDEFINE
+
+
+DEFINE Show_Indicate_Floor USING currentFloor AND number_of_floor
+    ID: id
+    Status: status
+    SEQUENCE Indicate_Floor
+        display wich floor you are now with currentFloor    
+    ENDSEQUENCE
+ENDDEFINE
+ENDDEFINE
+
+
+"SCENARIO 1"
+
+CALL Colonnes_List of Battery WITH 20 AND DOWN
+CALL Button_Floor of Battery WITH -15
+
+CALL Colonnes_List of Battery WITH 3 AND UP
+CALL Button_Floor of Battery WITH 12
+
+CALL Colonnes_List of Battery WITH 13 AND DOWN
+CALL Button_Floor of Battery WITH -13
+
+CALL Colonnes_List of Battery WITH 15 AND DOWN
+CAll Button_Floor of Battery WITH -13
+
+CALL Colonnes_List of Battery WITH 6 AND DOWN
+CALL Button_Floor of Battery WITH -6
+
+CALl Colonnes_List of Battery WITH 0 AND UP
+CALL Button_Floor of Battery WITH 20
+
+"SCENARIO 2"
+
+CALL Colonnes_List of Battery WITH 0 AND UP
+CALl Button_Floor of Battery WITH 21
+
+CALL Colonnes_List of Battery WITH 23 AND UP
+CALL Button_Floor of Battery WITH 5
+
+CALL Colonnes_List of Battery WITH 33 AND DOWN
+CALL Button_Floor of Battery WITH -33
+
+CALL Colonnes_List of Battery WITH 40 AND DOWN
+CALL Button_Floor of Battery WITH -16
+
+CALL Colonnes_List of Battery WITH 39 AND DOWN
+CALL Button_Floor of Battery WITH -39
+
+
+"SCENARIO 3"
+
+CALL Colonnes_List of Battery WITH 58 AND DOWN
+CALL Button_Floor of Battery WITH -58
+
+CALL Colonnes_List of Battery WITH 50 AND UP
+CALL Button_Floor of Battery WITH 10
+
+CALL Colonnes_List of Battery WITH 46 AND UP
+CALl Button_Floor of Battery WITH 12
+
+CALl Colonnes_List of Battery WITH 0 AND UP
+Call Button_Floor of Battery WITH 54
+
+CALL Colonnes_List of Battery WITH 60 AND DOWN
+CAll Button_Floor of Battery WITH -60
+
+
+"SCENARIO 4"
+
+CALL Colonnes_List of Battery WITH IDLE 
+CALl Button_Floor of Battery WITH -4
+
+CALl Colonnes_List of Battery WITH IDLE 
+CAll Colonnes_List of Battery WITH 0
+
+CALL Colonnes_List of Battery WITH -3 AND DOWN
+CALL Button_Floor of Battery WITH -5
+
+CALl Colonnes_List of Battery WITH -6 AND UP
+CALL Button_Floor of Battery WITH 6
+
+CALL Colonnes_List of Battery WITH -1 AND DOWN
+CALL Button_Floor of Battery WITH -5
+

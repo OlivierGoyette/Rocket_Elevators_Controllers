@@ -16,12 +16,8 @@ Bouton appartient à la colonne
 La colonne controle les acenseurs
 "
 
-
-
 Door_Open = false
 Door_Close = true
-
-
 
 
 DEFINE Column USING id AND number_of_floor AND number_of_elevator AND status AND direction
@@ -30,29 +26,30 @@ DEFINE Column USING id AND number_of_floor AND number_of_elevator AND status AND
     ElevatorList: SET to create_Elevator_List
     number_of_floor: 10
     SEQUENCE create_Elevator_List USING number_of_elevator
+        TEMPID = 1
         FOR EACH number_of_elevator
-            TEMPID = 1
-            ADD (INSTANTIATE Elevator_A WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
-            ADD (INSTANTIATE Elevator_B WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
-            TEMPID = TEMPID + 1
+            ADD (INSTANTIATE Elevator WITH TEMPID AND 1 AND "IDLE") TO ElevatorList
+            INCREMENT TEMPID
         ENDFOR
     ENDSEQUENCE
 ENDDEFINE
 
-
-DEFINE ElevatorList USING id AND currentFloor AND status AND direction
+DEFINE ElevatorList USING id AND currentFloor AND status AND direction AND maxGap
     ID: id
     status: IDLE
     Directions: directions
     currentFloor: 
+    maxGap: 10
    SEQUENCE Best_Elevator USING currentFloor AND Direction
-        FOR Each Elevator IN column1.ElevatorList
-            if Elevator NEAREST floor AND direction
-            then move Elevator to floor selected
-        ENDFOR
+        SET bestElevator TO NULL
+        FOR EACH elevator IN ElevatorList
+        IF elevator Gap < maxGap
+            maxGap = elevator Gap
+            bestElevator = elevator
+        ENDIF
+    ENDFOR
     ENDSEQUENCE
 ENDDEFINE
-
 
 DEFINE Button_Floor USING id AND status AND Directions AND number_of_floor
     ID: id
@@ -64,6 +61,7 @@ DEFINE Button_Floor USING id AND status AND Directions AND number_of_floor
         FOR Each number_of_floor
             ADD Button_Floor WITH "UP" AND number_of_floor TO create_Button_Floor
             ADD Button_Floor WITH "DOWN" AND number_of_floor TO create_Button_Floor
+            IF currentFloor = 1 OR 10
             REMOVE create_Button_Floor.direction10(UP) FROM create_Button_Floor
             REMOVE create_Button_Floor.direction1(DOWN) FROM create_Button_Floor
         ENDFOR
@@ -71,17 +69,18 @@ DEFINE Button_Floor USING id AND status AND Directions AND number_of_floor
 ENDDEFINE
 
 
-DEFINE Floor_Request USING id AND Status AND Elevator AND number_of_floor AND Directions
-    ID: id
-    Status: status
-    Directions: directions,
-    SEQUENCE createFloor_Request USING Elevator AND number_of_floor
-        FOR Each Elevator ADD createFloor_Request.list 
-        createFloor_Request.list = [1,2,3,4,5,6,7,8,9,10]
-        ENDFOR 
+DEFINE Button_Request_Floor USING direction
+    Directions: directions
+    SEQUENCE Elevator_Request USING number_of_floor AND direction
+        IF Button_Request_Floor is PRESSED 
+            READ Button_Request_Floor.direction AND Button_Request_Floor.number_of_floor
+            CALL Elevator WITH number_of_floor AND direction
+            INIT moveElevator TO Elevator_Request.number_of_floor WITH direction
+            THEN SET  Door_CloseAndOpen status TO IDLE
+            THEN SET Show_Indicate_Floor id 
+        ENDIF 
     ENDSEQUENCE
 ENDDEFINE
-
 
 DEFINE Door_CloseAndOpen USING id AND status AND Elevator AND number_of_floor
     ID: id
@@ -112,13 +111,30 @@ SEQUENCE initSystem USING number_of_floor AND number_of_elevator
     
 ENDSEQUENCE
 
-SEQUENCE Elevator_Request USING number_of_floor AND direction
-    IF Button_Floor is PRESSED 
-        READ Button_Floor.direction AND Button_Floor.number_of_floor
-        CALL Elevator WITH number_of_floor AND direction
-        INIT moveElevator TO Elevator_Request.number_of_floor WITH direction
-        THEN SET  Door_CloseAndOpen.status TO IDLE
-        THEN SET Show_Indicate_Floor.id WITH currentFloor
-    ENDIF 
-ENDSEQUENCE
+
+"SCENARIO 1"
+
+CALL Elevator_A WITH 3 AND UP
+CALL Floor_Request TO 7
+
+"SCENARIO 2"
+
+CALL Elevator_B WITH 1
+CALL Floor_Request TO 6
+
+CALL Elevator_B WITH 3 
+CALL Floor_Request TO 5
+
+CALL Elevator_A WITH 9
+CALL Floor_Request TO 2
+
+"SCNENARIO 3"
+
+CALL Elevator_A WITH 3
+CALL Floor_Request TO 2
+
+CALL Elevator_B WITH 10
+CALL Floor_Request TO 3
+
+
 
