@@ -51,10 +51,11 @@ class Columns:
 
 
     def createElevatorsList(self, numberOfElevator):
-        print('test')
+        print('createElevatorsList')
+        TEMPID=1
         for x in range(numberOfElevator):
-            newElevator = Elevator()
-            self.elevatorsList.append(elevator)
+            newElevator = Elevator(TEMPID, 1, 'idle')
+            self.elevatorsList.append(newElevator)
             TEMPID +=1
 
     def createButtonUpList(self, numberOfFloors):
@@ -71,22 +72,42 @@ class Columns:
                 self.callbuttonDown.append
             TEMPID +=1
 
-    def FindBestElevator(self, currentFloor, currentDirection, elevatorsList):
+    def findElevator(self, currentFloor, currentDirection, elevatorList):
+        print('findElevator')
         ActiveElevatorList = []
         IdleElevatorList = []
-        for x in range(numberOfElevator in elevatorsList):
-            if (numberOfElevator != status.IDLE and numberOfElevator < currentDirection):
-                if (numberOfElevator.status is "UP" and numberOfFloors < currentFloor or numberOfElevator.status is "DOWN" and numberOfElevator > currentFloor):
-                self.numberOfElevator.append(ActiveElevatorList)
+        for elevator in self.elevatorsList:
+            if numberOfElevator != "idle"
+            print("loop")
+            print(elevator)
+        # for x in range(numberOfElevator == elevatorsList):
+        #     if (numberOfElevator != status.IDLE and numberOfElevator < currentDirection):
+        #         if (numberOfElevator.status == "UP" and numberOfFloors < currentFloor or numberOfElevator.status == "DOWN" and numberOfElevator > currentFloor):
+        #             self.numberOfElevator.append(ActiveElevatorList)
+        # print('elevatorList')
 
-
-        if(ActiveElevatorList != [])
-        print('list empty!')
+        #if(ActiveElevatorList != [])
+        #print('list empty!')
             
- 
+class Elevator:           
+    def __init__(self, id, currentFloor, status, numberOfFloors):
+        self.id = id
+        self.currentFloor = currentFloor
+        self.status = status
+        self.numberOfFloors = numberOfFloors
+        self.maxWeight = maxWeight
+        self.createFloorDoorsList = numberOfFloors
+        self.createFloorButtonsList = numberOfFloors
+        self.floorDoorsList = []                               
+        self.floorButtonsList = []
+        self.floorList = []
 
+    def createFloorDoorsList(self, numberOfFloors):
+        id = 1
+        for self.numberOfFloors in range(self.FloorDoorsList):
+            id += 1
 
-
+        
 #class Elevator
 #    def ElevatorObj(self, numberOfFloors, floors):
 
@@ -96,7 +117,7 @@ class Columns:
 #controller = ResiCont(numberOfColumns, numberOfFloors, numberOfElevator)
 #print(controller.column)
 #print(controller.column.elevatorsList)
-
+#controller.column.FindBestElevator(1, 'up')
 
 
 #-----------------------Weight Limit-------------------------------#
